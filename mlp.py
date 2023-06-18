@@ -28,11 +28,6 @@ def transfer(activation):
         return np.exp(activation) / (np.exp(activation) + 1.0)
 
 
-def softmax(x):
-    exp_values = np.exp(x - np.max(x))
-    return exp_values / np.sum(exp_values)
-
-
 def forward_propagate(network, row):
     inputs = row
     for i in range(len(network)):
@@ -44,10 +39,7 @@ def forward_propagate(network, row):
             new_inputs.append(neuron['output'])
         inputs = new_inputs
 
-    # Apply softmax activation to the final layer
-    softmax_output = softmax(inputs)
-
-    return softmax_output
+    return inputs
 
 
 def transfer_derivative(output):
@@ -101,18 +93,24 @@ def predict(network, row):
     return outputs.index(max(outputs))
 
 
+def normalize_array(array):
+    min_value = np.min(array)
+    max_value = np.max(array)
+    normalized_array = 2 * (array - min_value) / (max_value - min_value) - 1
+    return normalized_array
+
+
 dataset = pd.read_csv('EMG.csv', header=None, sep=',', dtype=np.float64)
-dataset = dataset.values
+dataset = normalize_array(dataset.values)
 labels = pd.read_csv('Rotulos.csv', header=None, sep=',', dtype=np.float64)
 labels = labels.values
 labels = np.where(labels == -1, 0, labels)
 
 n_inputs = len(dataset[0])
 n_outputs = len(labels[0])
-print(f'n_inputs: {n_inputs}, n_outputs: {n_outputs}')
 
-n_layers = 10
-l_rate = 0.1
+n_layers = 20
+l_rate = 0.2
 n_epoch = 100
 
 network = initialize_network(n_inputs, n_layers, n_outputs)
