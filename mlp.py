@@ -78,7 +78,8 @@ def update_weights(network, row, l_rate):
 
 def train_network(network, x_train, y_train, x_test, y_test, l_rate, n_epoch, es_threshold=0.01):
     errors = []
-    accuracies = []
+    traning_accuracy = []
+    validation_accuracy = []
     epoch = 0
     while epoch < n_epoch:
         sum_error = 0
@@ -91,18 +92,19 @@ def train_network(network, x_train, y_train, x_test, y_test, l_rate, n_epoch, es
             update_weights(network, X, l_rate)
 
         errors.append(sum_error)
-        accuracy = get_accuracy(network, x_test, y_test)
-        accuracies.append(accuracy)
+        traning_accuracy.append(get_accuracy(network, x_train, y_train))
+        validation_accuracy.append(get_accuracy(network, x_test, y_test))
+
         print(
-            f"[EPOCH] {epoch} - Error: {sum_error} - Accuracy: {accuracy}")
+            f"[EPOCH] {epoch} - Error: {sum_error} - Accuracy: {validation_accuracy[-1]}")
 
         # early stopping
-        if epoch > 1 and abs(accuracies[-2] - accuracies[-1]) <= es_threshold:
+        if epoch > 1 and abs(validation_accuracy[-2] - validation_accuracy[-1]) <= es_threshold:
             print("Early Stopping")
             break
 
         epoch += 1
-    return errors, accuracies
+    return errors, traning_accuracy
 
 
 def train_test_split(x, y, test_size, random_state=None):
@@ -154,8 +156,8 @@ x_train, y_train, x_test, y_test = train_test_split(
 )
 
 n_layers = 5
-l_rate = 0.01
-n_epoch = 20
+l_rate = 0.001
+n_epoch = 100
 # early stopping - acuracy
 es_threshold = 0.001
 
