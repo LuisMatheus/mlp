@@ -76,16 +76,22 @@ def update_weights(network, row, l_rate):
             neuron['weights'][-1] -= l_rate * neuron['delta']
 
 
-def train_network(network, train, l_rate, n_epoch, outputs):
-    for epoch in range(n_epoch):
+def train_network(network, x_train, y_train, l_rate, n_epoch, es_threshold=0.01):
+    errors = []
+    epoch = 0
+    sum_error = -1
+    while epoch < n_epoch or sum_error > es_threshold:
         sum_error = 0
-        for X, y in zip(train, outputs):
+        for X, y in zip(x_train, y_train):
             predicted_outputs = forward_propagate(network, X)
             sum_error += sum([(y[i]-predicted_outputs[i])
                              ** 2 for i in range(len(y))])
             backward_propagate_error(network, y)
             update_weights(network, X, l_rate)
-        print('>epoch=%d, lrate=%.3f, error=%.3f' % (epoch, l_rate, sum_error))
+
+        errors.append(sum_error)
+        print(f"[EPOCH] {epoch} - Error: {sum_error}")
+        epoch += 1
 
 
 def predict(network, row):
@@ -112,8 +118,9 @@ n_outputs = len(labels[0])
 n_layers = 20
 l_rate = 0.2
 n_epoch = 100
+es_threshold = 0.01
 
 network = initialize_network(n_inputs, n_layers, n_outputs)
-train_network(network, dataset, l_rate, n_epoch, labels)
+train_network(network, dataset, labels, l_rate, n_epoch, es_threshold)
 # for layer in network:
 #   pass
